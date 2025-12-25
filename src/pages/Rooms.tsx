@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
+import { getRoomImage } from '@/utils/roomImages';
 import {
   Building2,
   Users,
@@ -203,17 +204,11 @@ const Rooms = () => {
               <Card key={room.id} className="overflow-hidden card-hover group">
                 {/* Room Image */}
                 <div className="relative h-48 bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden">
-                  {room.image_url ? (
-                    <img
-                      src={room.image_url}
-                      alt={room.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Building2 className="w-16 h-16 text-primary/30" />
-                    </div>
-                  )}
+                  <img
+                    src={getRoomImage(room.name, room.type)}
+                    alt={room.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
                   <Badge className="absolute top-3 left-3 bg-card/90 backdrop-blur-sm text-foreground">
                     {roomTypeIcons[room.type]}
                     <span className="ml-1">{roomTypeLabels[room.type]}</span>

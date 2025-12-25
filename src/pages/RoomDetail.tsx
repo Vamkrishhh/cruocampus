@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
+import { getRoomImage } from '@/utils/roomImages';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -318,17 +319,11 @@ const RoomDetail = () => {
             {/* Room Header Card */}
             <Card className="overflow-hidden">
               <div className="relative h-64 bg-gradient-to-br from-primary/20 to-accent/20">
-                {room.image_url ? (
-                  <img
-                    src={room.image_url}
-                    alt={room.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Building2 className="w-24 h-24 text-primary/30" />
-                  </div>
-                )}
+                <img
+                  src={getRoomImage(room.name, room.type)}
+                  alt={room.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <CardHeader>
                 <div className="flex items-start justify-between">
