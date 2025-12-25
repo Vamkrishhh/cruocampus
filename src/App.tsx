@@ -12,14 +12,28 @@ import RoomDetail from "./pages/RoomDetail";
 import MyBookings from "./pages/MyBookings";
 import CheckIn from "./pages/CheckIn";
 import AISuggest from "./pages/AISuggest";
+import Analytics from "./pages/Analytics";
+import AdminUsers from "./pages/AdminUsers";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin" /></div>;
-  if (!user) return <Navigate to="/auth" replace />;
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+  
   return <>{children}</>;
 };
 
@@ -33,6 +47,9 @@ const AppRoutes = () => (
     <Route path="/bookings" element={<ProtectedRoute><MyBookings /></ProtectedRoute>} />
     <Route path="/checkin" element={<ProtectedRoute><CheckIn /></ProtectedRoute>} />
     <Route path="/ai-suggest" element={<ProtectedRoute><AISuggest /></ProtectedRoute>} />
+    <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+    <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
+    <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
