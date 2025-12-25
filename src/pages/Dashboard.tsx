@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,6 +33,7 @@ interface RecentBooking {
   start_time: string;
   end_time: string;
   status: string;
+  room_id: string;
   room: {
     name: string;
     building: string;
@@ -40,6 +41,7 @@ interface RecentBooking {
 }
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { profile, role } = useAuth();
   const [stats, setStats] = useState<Stats>({
     totalRooms: 0,
@@ -82,6 +84,7 @@ const Dashboard = () => {
             start_time,
             end_time,
             status,
+            room_id,
             rooms (name, building)
           `)
           .order('date', { ascending: false })
@@ -104,6 +107,7 @@ const Dashboard = () => {
               start_time: b.start_time,
               end_time: b.end_time,
               status: b.status,
+              room_id: b.room_id,
               room: {
                 name: b.rooms?.name || 'Unknown',
                 building: b.rooms?.building || 'Unknown',
@@ -336,7 +340,8 @@ const Dashboard = () => {
                   {recentBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="flex items-center gap-4 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                      onClick={() => navigate(`/rooms/${booking.room_id}`)}
+                      className="flex items-center gap-4 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
                     >
                       <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                         <Building2 className="w-6 h-6 text-primary" />
