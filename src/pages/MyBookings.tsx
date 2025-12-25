@@ -4,10 +4,17 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Clock, Building2, QrCode, XCircle, Loader2 } from 'lucide-react';
+import { Calendar, Clock, Building2, QrCode, XCircle, Loader2, Eye, LogOut } from 'lucide-react';
 
 interface Booking {
   id: string;
@@ -16,7 +23,7 @@ interface Booking {
   start_time: string;
   end_time: string;
   status: string;
-  qr_code: string;
+  qr_code: string | null;
   rooms: { name: string; building: string };
 }
 
@@ -25,6 +32,8 @@ const MyBookings = () => {
   const { toast } = useToast();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedQrCode, setSelectedQrCode] = useState<string | null>(null);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -53,6 +62,31 @@ const MyBookings = () => {
       toast({ title: 'Booking cancelled' });
     } catch (error) {
       toast({ title: 'Error', variant: 'destructive' });
+    }
+  };
+
+  const checkOut = async (id: string) => {
+    try {
+      await supabase.from('bookings').update({ 
+        status: 'completed', 
+        checked_out_at: new Date().toISOString() 
+      }).eq('id', id);
+      await supabase.from('checkins').insert({ 
+        booking_id: id, 
+        user_id: user!.id, 
+        action: 'check_out' 
+      });
+      setBookings(bookings.map(b => b.id === id ? { ...b, status: 'completed' } : b));
+      toast({ title: 'Checked out successfully' });
+    } catch (error) {
+      toast({ title: 'Error', variant: 'destructive' });
+    }
+  };
+
+  const showQrCode = (code: string | null) => {
+    if (code) {
+      setSelectedQrCode(code);
+      setQrDialogOpen(true);
     }
   };
 
@@ -93,8 +127,13 @@ const MyBookings = () => {
                       <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{booking.start_time} - {booking.end_time}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     {getStatusBadge(booking.status)}
+                    {booking.qr_code && ['pending', 'confirmed'].includes(booking.status) && (
+                      <Button size="sm" variant="outline" onClick={() => showQrCode(booking.qr_code)}>
+                        <Eye className="w-4 h-4 mr-1" />QR
+                      </Button>
+                    )}
                     {['pending', 'confirmed'].includes(booking.status) && (
                       <>
                         <Button size="sm" variant="outline" asChild>
@@ -105,15 +144,38 @@ const MyBookings = () => {
                         </Button>
                       </>
                     )}
+                    {booking.status === 'checked_in' && (
+                      <Button size="sm" variant="outline" onClick={() => checkOut(booking.id)}>
+                        <LogOut className="w-4 h-4 mr-1" />Check Out
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : (
-          <Card><CardContent className="py-12 text-center"><Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground" /><p>No bookings yet</p></CardContent></Card>
+          <Card><CardContent className="py-12 text-center"><Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground" /><p>No bookings yet</p><Button asChild variant="link" className="mt-2"><Link to="/rooms">Browse rooms</Link></Button></CardContent></Card>
         )}
       </div>
+
+      <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Your Booking QR Code</DialogTitle>
+            <DialogDescription>Show this code at check-in or use it in the Check-In page</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-6">
+            <div className="w-48 h-48 bg-muted rounded-xl flex items-center justify-center border-2 border-dashed border-accent">
+              <QrCode className="w-24 h-24 text-accent" />
+            </div>
+            <code className="px-4 py-2 bg-muted rounded-lg text-lg font-mono font-semibold">{selectedQrCode}</code>
+            <Button variant="outline" onClick={() => { navigator.clipboard.writeText(selectedQrCode || ''); toast({ title: 'Copied!' }); }}>
+              Copy Code
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };

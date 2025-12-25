@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,9 +13,17 @@ import { QrCode, CheckCircle2, Loader2, Camera } from 'lucide-react';
 const CheckIn = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [qrCode, setQrCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [checkedIn, setCheckedIn] = useState(false);
+
+  useEffect(() => {
+    const codeFromUrl = searchParams.get('code');
+    if (codeFromUrl) {
+      setQrCode(codeFromUrl);
+    }
+  }, [searchParams]);
 
   const handleCheckIn = async () => {
     if (!qrCode.trim() || !user) return;

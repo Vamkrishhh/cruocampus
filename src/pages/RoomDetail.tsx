@@ -192,6 +192,7 @@ const RoomDetail = () => {
 
     try {
       const dateStr = selectedDate.toISOString().split('T')[0];
+      const qrCode = `CRUO-${room.id.slice(0, 8)}-${Date.now().toString(36).toUpperCase()}`;
 
       const { error } = await supabase.from('bookings').insert({
         room_id: room.id,
@@ -203,6 +204,7 @@ const RoomDetail = () => {
         end_time: `${endTime}:00`,
         attendees_count: parseInt(attendeesCount) || 1,
         status: 'confirmed',
+        qr_code: qrCode,
       });
 
       if (error) throw error;

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles, Loader2, Clock, Building2, Lightbulb } from 'lucide-react';
+import { Sparkles, Loader2, Clock, Building2, Lightbulb, ArrowRight } from 'lucide-react';
 
 interface Suggestion {
   room: string;
@@ -14,11 +15,26 @@ interface Suggestion {
   reason: string;
 }
 
+interface Room {
+  id: string;
+  name: string;
+}
+
 const AISuggest = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      const { data } = await supabase.from('rooms').select('id, name').eq('is_active', true);
+      if (data) setRooms(data);
+    };
+    fetchRooms();
+  }, []);
 
   const getSuggestions = async () => {
     if (!query.trim()) return;
@@ -33,6 +49,16 @@ const AISuggest = () => {
       toast({ title: 'Error', description: error.message || 'Could not get suggestions', variant: 'destructive' });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const findRoomAndNavigate = (roomName: string) => {
+    const room = rooms.find(r => r.name.toLowerCase().includes(roomName.toLowerCase()) || roomName.toLowerCase().includes(r.name.toLowerCase()));
+    if (room) {
+      navigate(`/rooms/${room.id}`);
+    } else {
+      navigate('/rooms');
+      toast({ title: 'Room not found', description: 'Browse available rooms to book', variant: 'default' });
     }
   };
 
@@ -81,6 +107,13 @@ const AISuggest = () => {
                       <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1"><Clock className="w-4 h-4" />{s.time}</p>
                       <p className="mt-3 text-sm">{s.reason}</p>
                     </div>
+                    <Button 
+                      size="sm" 
+                      className="bg-accent hover:bg-accent/90"
+                      onClick={() => findRoomAndNavigate(s.room)}
+                    >
+                      Book <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
