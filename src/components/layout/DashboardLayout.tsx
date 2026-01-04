@@ -37,6 +37,8 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+  { label: 'Schedule', href: '/schedule', icon: <Calendar className="w-5 h-5" /> },
+  { label: 'Floor Plan', href: '/floor-plan', icon: <Building2 className="w-5 h-5" /> },
   { label: 'Rooms', href: '/rooms', icon: <Building2 className="w-5 h-5" /> },
   { label: 'My Bookings', href: '/bookings', icon: <Calendar className="w-5 h-5" /> },
   { label: 'Check-In', href: '/checkin', icon: <QrCode className="w-5 h-5" /> },

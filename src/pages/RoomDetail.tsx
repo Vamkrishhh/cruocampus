@@ -44,7 +44,10 @@ import {
   Wifi,
   Projector,
   Monitor,
+  Repeat,
 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { addDays, addWeeks, format } from 'date-fns';
 
 interface Room {
   id: string;
@@ -106,6 +109,9 @@ const RoomDetail = () => {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [attendeesCount, setAttendeesCount] = useState('1');
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringType, setRecurringType] = useState<'daily' | 'weekly'>('weekly');
+  const [recurringCount, setRecurringCount] = useState('4');
 
   useEffect(() => {
     const fetchRoom = async () => {
@@ -191,27 +197,46 @@ const RoomDetail = () => {
     setIsSubmitting(true);
 
     try {
-      const dateStr = selectedDate.toISOString().split('T')[0];
-      const qrCode = `CRUO-${room.id.slice(0, 8)}-${Date.now().toString(36).toUpperCase()}`;
+      // Generate bookings array (for recurring or single)
+      const bookingsToCreate = [];
+      const count = isRecurring ? parseInt(recurringCount) || 1 : 1;
 
-      const { error } = await supabase.from('bookings').insert({
-        room_id: room.id,
-        user_id: user.id,
-        title: bookingTitle.trim(),
-        purpose: bookingPurpose.trim() || null,
-        date: dateStr,
-        start_time: `${startTime}:00`,
-        end_time: `${endTime}:00`,
-        attendees_count: parseInt(attendeesCount) || 1,
-        status: 'confirmed',
-        qr_code: qrCode,
-      });
+      for (let i = 0; i < count; i++) {
+        let bookingDate: Date;
+        if (recurringType === 'daily') {
+          bookingDate = addDays(selectedDate, i);
+        } else {
+          bookingDate = addWeeks(selectedDate, i);
+        }
+        
+        const dateStr = format(bookingDate, 'yyyy-MM-dd');
+        const qrCode = `CRUO-${room.id.slice(0, 8)}-${Date.now().toString(36).toUpperCase()}-${i}`;
+
+        bookingsToCreate.push({
+          room_id: room.id,
+          user_id: user.id,
+          title: bookingTitle.trim(),
+          purpose: bookingPurpose.trim() || null,
+          date: dateStr,
+          start_time: `${startTime}:00`,
+          end_time: `${endTime}:00`,
+          attendees_count: parseInt(attendeesCount) || 1,
+          status: 'confirmed',
+          qr_code: qrCode,
+        });
+      }
+
+      const { error } = await supabase.from('bookings').insert(bookingsToCreate);
 
       if (error) throw error;
 
+      const bookingMessage = isRecurring 
+        ? `${count} ${recurringType} bookings created starting ${format(selectedDate, 'MMM d, yyyy')}`
+        : `${room.name} has been booked for ${format(selectedDate, 'MMM d, yyyy')}`;
+
       toast({
-        title: 'Booking Confirmed!',
-        description: `${room.name} has been booked for ${new Date(dateStr).toLocaleDateString()}.`,
+        title: isRecurring ? 'Recurring Bookings Created!' : 'Booking Confirmed!',
+        description: bookingMessage,
       });
 
       setIsBookingModalOpen(false);
@@ -220,8 +245,11 @@ const RoomDetail = () => {
       setStartTime('');
       setEndTime('');
       setAttendeesCount('1');
+      setIsRecurring(false);
+      setRecurringCount('4');
 
       // Refresh booked slots
+      const dateStr = format(selectedDate, 'yyyy-MM-dd');
       const { data } = await supabase
         .from('bookings')
         .select('start_time, end_time')
@@ -532,6 +560,54 @@ const RoomDetail = () => {
                 <p className="text-xs text-muted-foreground">
                   Maximum capacity: {room.capacity} people
                 </p>
+              </div>
+
+              {/* Recurring Booking Section */}
+              <div className="p-4 rounded-lg bg-muted/50 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Repeat className="w-4 h-4 text-accent" />
+                    <Label htmlFor="recurring" className="font-medium">Recurring Booking</Label>
+                  </div>
+                  <Switch
+                    id="recurring"
+                    checked={isRecurring}
+                    onCheckedChange={setIsRecurring}
+                  />
+                </div>
+                
+                {isRecurring && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Repeat</Label>
+                      <Select value={recurringType} onValueChange={(v: 'daily' | 'weekly') => setRecurringType(v)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="weekly">Weekly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Occurrences</Label>
+                      <Select value={recurringCount} onValueChange={setRecurringCount}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[2, 3, 4, 5, 6, 7, 8, 10, 12].map(num => (
+                            <SelectItem key={num} value={num.toString()}>{num} times</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="col-span-2 text-xs text-muted-foreground">
+                      This will create {recurringCount} bookings {recurringType === 'daily' ? 'on consecutive days' : 'on the same day each week'}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
