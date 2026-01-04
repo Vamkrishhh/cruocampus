@@ -15,6 +15,8 @@ import AISuggest from "./pages/AISuggest";
 import Analytics from "./pages/Analytics";
 import AdminUsers from "./pages/AdminUsers";
 import Settings from "./pages/Settings";
+import Schedule from "./pages/Schedule";
+import FloorPlan from "./pages/FloorPlan";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +52,8 @@ const AppRoutes = () => (
     <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
     <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
     <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+    <Route path="/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} />
+    <Route path="/floor-plan" element={<ProtectedRoute><FloorPlan /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );

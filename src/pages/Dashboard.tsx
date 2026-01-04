@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import QuickBookWidget from '@/components/QuickBookWidget';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +18,8 @@ import {
   ArrowRight,
   CheckCircle2,
   AlertCircle,
+  Map,
+  CalendarDays,
 } from 'lucide-react';
 
 interface Stats {
@@ -179,6 +182,18 @@ const Dashboard = () => {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
+                <Link to="/schedule">
+                  <CalendarDays className="w-4 h-4 mr-2" />
+                  View Schedule
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
+                <Link to="/floor-plan">
+                  <Map className="w-4 h-4 mr-2" />
+                  Floor Plan
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10">
                 <Link to="/ai-suggest">
                   <Sparkles className="w-4 h-4 mr-2" />
                   AI Suggestions
@@ -247,66 +262,71 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Quick Actions & Recent Bookings */}
+        {/* Quick Book, Quick Actions & Recent Bookings */}
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Quick Actions */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="font-display">Quick Actions</CardTitle>
-              <CardDescription>Common tasks at your fingertips</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button asChild variant="outline" className="w-full justify-start h-auto py-3">
-                <Link to="/rooms">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mr-3">
-                    <Building2 className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium">Book a Room</p>
-                    <p className="text-xs text-muted-foreground">Find available spaces</p>
-                  </div>
-                </Link>
-              </Button>
+          {/* Quick Book Widget */}
+          <div className="space-y-6">
+            <QuickBookWidget />
 
-              <Button asChild variant="outline" className="w-full justify-start h-auto py-3">
-                <Link to="/checkin">
-                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center mr-3">
-                    <QrCode className="w-5 h-5 text-accent" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium">Check In</p>
-                    <p className="text-xs text-muted-foreground">Scan your QR code</p>
-                  </div>
-                </Link>
-              </Button>
-
-              <Button asChild variant="outline" className="w-full justify-start h-auto py-3">
-                <Link to="/ai-suggest">
-                  <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center mr-3">
-                    <Sparkles className="w-5 h-5 text-success" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium">AI Assistant</p>
-                    <p className="text-xs text-muted-foreground">Get smart suggestions</p>
-                  </div>
-                </Link>
-              </Button>
-
-              {(role === 'admin' || role === 'faculty') && (
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-display">Quick Actions</CardTitle>
+                <CardDescription>Common tasks at your fingertips</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
                 <Button asChild variant="outline" className="w-full justify-start h-auto py-3">
-                  <Link to="/analytics">
-                    <div className="w-10 h-10 rounded-lg bg-info/10 flex items-center justify-center mr-3">
-                      <TrendingUp className="w-5 h-5 text-info" />
+                  <Link to="/schedule">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mr-3">
+                      <CalendarDays className="w-5 h-5 text-primary" />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium">View Analytics</p>
-                      <p className="text-xs text-muted-foreground">Usage insights</p>
+                      <p className="font-medium">View Schedule</p>
+                      <p className="text-xs text-muted-foreground">Day, week, month views</p>
                     </div>
                   </Link>
                 </Button>
-              )}
-            </CardContent>
-          </Card>
+
+                <Button asChild variant="outline" className="w-full justify-start h-auto py-3">
+                  <Link to="/floor-plan">
+                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center mr-3">
+                      <Map className="w-5 h-5 text-accent" />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-medium">Floor Plan</p>
+                      <p className="text-xs text-muted-foreground">Interactive campus map</p>
+                    </div>
+                  </Link>
+                </Button>
+
+                <Button asChild variant="outline" className="w-full justify-start h-auto py-3">
+                  <Link to="/checkin">
+                    <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center mr-3">
+                      <QrCode className="w-5 h-5 text-success" />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-medium">Check In</p>
+                      <p className="text-xs text-muted-foreground">Scan your QR code</p>
+                    </div>
+                  </Link>
+                </Button>
+
+                {(role === 'admin' || role === 'faculty') && (
+                  <Button asChild variant="outline" className="w-full justify-start h-auto py-3">
+                    <Link to="/analytics">
+                      <div className="w-10 h-10 rounded-lg bg-info/10 flex items-center justify-center mr-3">
+                        <TrendingUp className="w-5 h-5 text-info" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-medium">View Analytics</p>
+                        <p className="text-xs text-muted-foreground">Usage insights</p>
+                      </div>
+                    </Link>
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Recent Bookings */}
           <Card className="lg:col-span-2">
