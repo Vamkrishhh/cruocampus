@@ -23,7 +23,7 @@ import { Building2, Users, MapPin, Clock, Loader2, ZoomIn, ZoomOut, Move } from 
 interface Room {
   id: string;
   name: string;
-  type: 'classroom' | 'lab' | 'seminar_hall' | 'meeting_room';
+  type: 'classroom' | 'lab' | 'seminar_hall' | 'meeting_room' | 'sports_facility';
   capacity: number;
   building: string;
   floor: number;
@@ -36,18 +36,20 @@ interface RoomWithAvailability extends Room {
   currentBooking?: string;
 }
 
-const roomTypeColors = {
+const roomTypeColors: Record<string, string> = {
   classroom: 'bg-info/20 border-info/40 hover:bg-info/30',
   lab: 'bg-accent/20 border-accent/40 hover:bg-accent/30',
   seminar_hall: 'bg-warning/20 border-warning/40 hover:bg-warning/30',
   meeting_room: 'bg-success/20 border-success/40 hover:bg-success/30',
+  sports_facility: 'bg-primary/20 border-primary/40 hover:bg-primary/30',
 };
 
-const roomTypeLabels = {
+const roomTypeLabels: Record<string, string> = {
   classroom: 'Classroom',
   lab: 'Laboratory',
   seminar_hall: 'Seminar Hall',
   meeting_room: 'Meeting Room',
+  sports_facility: 'Sports Facility',
 };
 
 // Simulated floor plan positions (in percentage)

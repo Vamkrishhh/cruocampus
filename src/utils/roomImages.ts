@@ -21,6 +21,7 @@ const typeImageMap: Record<string, string> = {
   lab: computerLab,
   seminar_hall: seminarRoom,
   meeting_room: conferenceRoom,
+  sports_facility: innovationLab,
 };
 
 export const getRoomImage = (roomName: string, roomType: string): string => {

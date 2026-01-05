@@ -28,12 +28,13 @@ import {
   GraduationCap,
   Presentation,
   DoorOpen,
+  Dumbbell,
 } from 'lucide-react';
 
 interface Room {
   id: string;
   name: string;
-  type: 'classroom' | 'lab' | 'seminar_hall' | 'meeting_room';
+  type: 'classroom' | 'lab' | 'seminar_hall' | 'meeting_room' | 'sports_facility';
   capacity: number;
   building: string;
   floor: number;
@@ -41,20 +42,24 @@ interface Room {
   amenities: string[];
   image_url: string | null;
   is_active: boolean;
+  available_quantity: number | null;
+  max_booking_hours: number | null;
 }
 
-const roomTypeIcons = {
+const roomTypeIcons: Record<string, React.ReactNode> = {
   classroom: <GraduationCap className="w-5 h-5" />,
   lab: <FlaskConical className="w-5 h-5" />,
   seminar_hall: <Presentation className="w-5 h-5" />,
   meeting_room: <DoorOpen className="w-5 h-5" />,
+  sports_facility: <Dumbbell className="w-5 h-5" />,
 };
 
-const roomTypeLabels = {
+const roomTypeLabels: Record<string, string> = {
   classroom: 'Classroom',
   lab: 'Laboratory',
   seminar_hall: 'Seminar Hall',
   meeting_room: 'Meeting Room',
+  sports_facility: 'Sports Facility',
 };
 
 const Rooms = () => {
@@ -174,6 +179,7 @@ const Rooms = () => {
                     <SelectItem value="lab">Laboratory</SelectItem>
                     <SelectItem value="seminar_hall">Seminar Hall</SelectItem>
                     <SelectItem value="meeting_room">Meeting Room</SelectItem>
+                    <SelectItem value="sports_facility">Sports Facility</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={capacityFilter} onValueChange={setCapacityFilter}>
