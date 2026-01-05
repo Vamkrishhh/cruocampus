@@ -52,13 +52,15 @@ import { addDays, addWeeks, format } from 'date-fns';
 interface Room {
   id: string;
   name: string;
-  type: 'classroom' | 'lab' | 'seminar_hall' | 'meeting_room';
+  type: 'classroom' | 'lab' | 'seminar_hall' | 'meeting_room' | 'sports_facility';
   capacity: number;
   building: string;
   floor: number;
   equipment: string[];
   amenities: string[];
   image_url: string | null;
+  available_quantity?: number | null;
+  max_booking_hours?: number | null;
 }
 
 interface TimeSlot {
@@ -83,11 +85,12 @@ const timeSlots: TimeSlot[] = [
   { time: '20:00', label: '8:00 PM', available: true },
 ];
 
-const roomTypeLabels = {
+const roomTypeLabels: Record<string, string> = {
   classroom: 'Classroom',
   lab: 'Laboratory',
   seminar_hall: 'Seminar Hall',
   meeting_room: 'Meeting Room',
+  sports_facility: 'Sports Facility',
 };
 
 const RoomDetail = () => {
