@@ -176,6 +176,7 @@ export type Database = {
       rooms: {
         Row: {
           amenities: string[] | null
+          available_quantity: number | null
           building: string
           capacity: number
           created_at: string
@@ -184,12 +185,14 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean
+          max_booking_hours: number | null
           name: string
           type: Database["public"]["Enums"]["room_type"]
           updated_at: string
         }
         Insert: {
           amenities?: string[] | null
+          available_quantity?: number | null
           building: string
           capacity: number
           created_at?: string
@@ -198,12 +201,14 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          max_booking_hours?: number | null
           name: string
           type: Database["public"]["Enums"]["room_type"]
           updated_at?: string
         }
         Update: {
           amenities?: string[] | null
+          available_quantity?: number | null
           building?: string
           capacity?: number
           created_at?: string
@@ -212,6 +217,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          max_booking_hours?: number | null
           name?: string
           type?: Database["public"]["Enums"]["room_type"]
           updated_at?: string
@@ -265,7 +271,12 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "no_show"
-      room_type: "classroom" | "lab" | "seminar_hall" | "meeting_room"
+      room_type:
+        | "classroom"
+        | "lab"
+        | "seminar_hall"
+        | "meeting_room"
+        | "sports_facility"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -402,7 +413,13 @@ export const Constants = {
         "cancelled",
         "no_show",
       ],
-      room_type: ["classroom", "lab", "seminar_hall", "meeting_room"],
+      room_type: [
+        "classroom",
+        "lab",
+        "seminar_hall",
+        "meeting_room",
+        "sports_facility",
+      ],
     },
   },
 } as const
